@@ -8,11 +8,9 @@
 .buildlog/
 .history
 .svn/
-android
 linux
 windows
 .metadata
-analysis*
 
 # IntelliJ related
 *.iml
