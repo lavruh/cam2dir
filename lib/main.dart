@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:camera_app/screens/fs_tree_view.dart';
+import 'package:camera_app/domain/tree_widget_controller.dart';
 import 'package:camera_app/screens/camera_screen.dart';
-import 'package:camera_app/screens/folder_select_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:get/get.dart';
 import 'di.dart';
 
 Future<void> main() async {
@@ -36,8 +38,6 @@ class _CameraAppState extends State<CameraApp> {
     // does not work
     final CameraController? cameraController = camera.camCtrl;
 
-    print("App state -> $state");
-    // App state changed before we got the chance to initialize.
     if (cameraController == null || !cameraController.value.isInitialized) {
       return;
     }
@@ -50,7 +50,7 @@ class _CameraAppState extends State<CameraApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: _theme,
       home: PageView(
@@ -58,7 +58,11 @@ class _CameraAppState extends State<CameraApp> {
         controller: controller,
         children: [
           CameraScreen(),
-          FolderSelectScreen(),
+          FsTreeView(
+              treeController: TreeWidgetController(
+            path: camera.filePath,
+            pathSetCallback: camera.setFilePath,
+          )),
         ],
       ),
     );
@@ -71,7 +75,7 @@ class _CameraAppState extends State<CameraApp> {
       textTheme: const TextTheme(
         headline1: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
         headline3: TextStyle(
-            fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.green),
+            fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white),
         headline6: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
         bodyText1: TextStyle(fontSize: 12.0),
       ));

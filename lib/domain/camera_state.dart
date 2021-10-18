@@ -14,6 +14,7 @@ class CameraState extends GetxController {
   String filePath = "/storage/emulated/0/DCIM".obs();
   String fileName = "".obs();
   String prefix = "".obs();
+  FlashMode flashMode = FlashMode.off;
 
   double _minAvailableExposureOffset = 0;
   double _maxAvailableExposureOffset = 0;
@@ -24,38 +25,58 @@ class CameraState extends GetxController {
     return "${prefix}_${DateFormat("yMdjms").format(DateTime.now())}.jpg";
   }
 
+  toggleFlashMode() {
+    showInSnackBar(flashMode.index.toString());
+    if ((flashMode.index + 1) == FlashMode.values.length) {
+      flashMode = FlashMode.values.first;
+    } else {
+      flashMode = FlashMode.values[flashMode.index + 1];
+    }
+    camCtrl?.setFlashMode(flashMode);
+    update();
+  }
+
   setFilePath(String value) {
     filePath = value;
     update();
   }
 
+  setNamePrefix(String val) {
+    prefix = val;
+    update();
+  }
+
   takePhoto() async {
-    // printMsg("Take photo\n");
+    info.showMsg("Take photo\n");
     if (!camCtrl!.value.isInitialized) {
-      // printMsg("Controller not init\n");
+      showInSnackBar("Controller not init\n");
       initCamera();
       return null;
     }
     if (camCtrl!.value.isTakingPicture) {
-      // printMsg("CameraScreen busy\n");
+      showInSnackBar("CameraScreen busy\n");
       initCamera();
       return null;
     }
     try {
       XFile pic = await camCtrl!.takePicture();
-      pic.saveTo("$filePath/$fileName");
+      pic.saveTo("$filePath/${prefix}_$fileName");
       fileName = generateFileName();
-      // printMsg("Photo saved to $filePath/$fileName");
+      showInSnackBar("Photo saved to $filePath/$fileName");
     } on Exception catch (e) {
-      // printMsg(e.toString());
+      showInSnackBar(e.toString());
     }
     update();
   }
 
-  void initCamera() async {
+  void disposeCamera() async {
     if (camCtrl != null) {
       await camCtrl!.dispose();
+      showInSnackBar("controller dispose");
     }
+  }
+
+  void initCamera() async {
     camCtrl = CameraController(cameras[0], ResolutionPreset.max);
 
     camCtrl!.addListener(() {
@@ -79,6 +100,7 @@ class CameraState extends GetxController {
     } on CameraException catch (e) {
       showCameraException(e);
     }
+    update();
   }
 
   callOtherApp() {}
