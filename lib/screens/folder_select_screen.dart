@@ -9,7 +9,7 @@ class FolderSelectScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FileSysTreeWidget(
-        camera.baseDir.path,
+        camera.basePath,
         selectedDirPath: camera.filePath,
       ),
     );

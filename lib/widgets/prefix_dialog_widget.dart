@@ -2,13 +2,17 @@ import 'package:camera_app/domain/camera_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class PrefixDialogWidget extends StatelessWidget {
+class DialogWidget extends StatelessWidget {
   TextEditingController txtController = TextEditingController();
+  String topic;
+  Function? callback;
 
-  PrefixDialogWidget({
+  DialogWidget({
     Key? key,
     BuildContext? context,
     String? initText,
+    this.topic = "",
+    this.callback,
   }) : super(key: key) {
     txtController.text = initText ?? "";
   }
@@ -24,7 +28,7 @@ class PrefixDialogWidget extends StatelessWidget {
                 child: Wrap(
                   children: [
                     Text(
-                      "Prefix :",
+                      topic,
                       style: Theme.of(context).textTheme.headline5,
                     ),
                     TextField(
@@ -32,7 +36,8 @@ class PrefixDialogWidget extends StatelessWidget {
                       decoration: InputDecoration(
                           suffixIcon: IconButton(
                               onPressed: () {
-                                _.setNamePrefix(txtController.text);
+                                // _.setNamePrefix(txtController.text);
+                                callback!(txtController.text);
                                 Navigator.of(context, rootNavigator: true)
                                     .pop();
                               },

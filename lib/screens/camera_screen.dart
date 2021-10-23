@@ -3,6 +3,7 @@ import 'package:camera_app/widgets/cam_prev_widget.dart';
 import 'package:camera_app/widgets/control_buttons_widget.dart';
 import 'package:camera_app/widgets/file_location_widget.dart';
 import 'package:camera_app/widgets/info_widget.dart';
+import 'package:camera_app/widgets/photo_preview_widget.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:intl/intl.dart';
@@ -17,21 +18,38 @@ class CameraScreen extends StatelessWidget {
     camera.initCamera();
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.black87,
       body: Center(
         child: Wrap(
+          // direction: Axis.horizontal,
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            CamPrevWidget(),
+            SizedBox(
+              height: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.height
+                  : MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.height
+                  : MediaQuery.of(context).size.width,
+              child: CamPrevWidget(),
+            ),
             Container(
-              height: 300,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.black,
+              color: Colors.black87,
               child: Wrap(
+                direction: Axis.vertical,
                 alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 10,
                 children: [
                   FileLocationWidget(),
-                  ControlButtonsWidget(),
+                  const ControlButtonsWidget(),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width > 600
+                        ? MediaQuery.of(context).size.width * 0.3
+                        : MediaQuery.of(context).size.width,
+                    child: PhotoPreviewWidget(),
+                  ),
                 ],
               ),
             ),

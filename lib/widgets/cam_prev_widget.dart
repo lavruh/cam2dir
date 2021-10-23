@@ -12,13 +12,9 @@ class CamPrevWidget extends StatelessWidget {
       if ((_.camCtrl != null) & (!_.camCtrl!.value.isInitialized)) {
         return Container(
           color: Colors.indigo,
-          child: SizedBox(
-            height: MediaQuery.of(context).size.width,
-            width: MediaQuery.of(context).size.width,
-            child: const Center(
-              child: Text(
-                "Camera not init",
-              ),
+          child: const Center(
+            child: Text(
+              "Camera not init",
             ),
           ),
         );

@@ -1,8 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:flutter/material.dart';
 import 'package:camera_app/di.dart';
-import 'package:get/state_manager.dart';
+import 'package:get/get.dart';
 
 class ControlButtonsWidget extends StatelessWidget {
   const ControlButtonsWidget({Key? key}) : super(key: key);
@@ -15,31 +16,31 @@ class ControlButtonsWidget extends StatelessWidget {
         alignment: WrapAlignment.center,
         runAlignment: WrapAlignment.center,
         children: [
-          Wrap(
-            direction: Axis.vertical,
-            children: [
-              ElevatedButton(
-                  style: ButtonStyle(
-                      minimumSize: MaterialStateProperty.all<Size>(
-                          const Size.square(100))),
-                  onPressed: () {
-                    camera.toggleFlashMode();
-                  },
-                  child: getFlashIcon()),
-            ],
-          ),
-          ElevatedButton(
-              style: ButtonStyle(
-                  minimumSize:
-                      MaterialStateProperty.all<Size>(const Size.square(100))),
+          _customButton(
+              child: getFlashIcon(),
+              onPressed: () {
+                camera.toggleFlashMode();
+              }),
+          _customButton(
               onPressed: () {
                 camera.takePhoto();
-                // if (mounted) setState(() {});
               },
               child: const Icon(Icons.camera)),
         ],
       );
     });
+  }
+
+  Widget _customButton({
+    required Widget child,
+    required void Function() onPressed,
+  }) {
+    return ElevatedButton(
+        style: ButtonStyle(
+            minimumSize:
+                MaterialStateProperty.all<Size>(const Size.square(50))),
+        onPressed: onPressed,
+        child: child);
   }
 
   Widget getFlashIcon() {

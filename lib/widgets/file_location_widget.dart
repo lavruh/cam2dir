@@ -16,7 +16,18 @@ class FileLocationWidget extends StatelessWidget {
       children: [
         GetBuilder<CameraState>(builder: (_) {
           return ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return DialogWidget(
+                      context: context,
+                      topic: "Base path :",
+                      initText: _.basePath,
+                      callback: _.setBasePath,
+                    );
+                  });
+            },
             child: Text(camera.filePath,
                 style: Theme.of(context).textTheme.headline3),
           );
@@ -27,9 +38,11 @@ class FileLocationWidget extends StatelessWidget {
                     showDialog(
                         context: context,
                         builder: (context) {
-                          return PrefixDialogWidget(
+                          return DialogWidget(
                             context: context,
+                            topic: "Prefix :",
                             initText: _.prefix,
+                            callback: _.setNamePrefix,
                           );
                         });
                   },

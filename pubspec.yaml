@@ -20,6 +20,7 @@ dependencies:
       url: https://github.com/mbaumgartenbr/flutter_tree_view.git
       ref: main
   photo_view: ^0.13.0
+  shared_preferences: ^2.0.8
 
 
 

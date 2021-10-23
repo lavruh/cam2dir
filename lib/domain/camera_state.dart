@@ -4,13 +4,16 @@ import 'package:camera_app/di.dart';
 import 'package:camera_app/widgets/info_widget.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraState extends GetxController {
   CameraController? camCtrl;
 
   CameraState(this.camCtrl);
 
-  final Directory baseDir = Directory("/storage/emulated/0/DCIM").obs();
+  SharedPreferences settings = Get.find();
+  // final Directory baseDir = Directory("/storage/emulated/0/DCIM").obs();
+  String basePath = "/storage/emulated/0/DCIM".obs();
   String filePath = "/storage/emulated/0/DCIM".obs();
   String fileName = "".obs();
   String prefix = "".obs();
@@ -26,7 +29,6 @@ class CameraState extends GetxController {
   }
 
   toggleFlashMode() {
-    showInSnackBar(flashMode.index.toString());
     if ((flashMode.index + 1) == FlashMode.values.length) {
       flashMode = FlashMode.values.first;
     } else {
@@ -34,6 +36,11 @@ class CameraState extends GetxController {
     }
     camCtrl?.setFlashMode(flashMode);
     update();
+  }
+
+  setBasePath(String val) {
+    basePath = val;
+    setFilePath(val);
   }
 
   setFilePath(String value) {
@@ -60,8 +67,9 @@ class CameraState extends GetxController {
     }
     try {
       XFile pic = await camCtrl!.takePicture();
-      pic.saveTo("$filePath/${prefix}_$fileName");
       fileName = generateFileName();
+      pic.saveTo("$filePath/$fileName");
+      photoPreview.addPhoto("$filePath/$fileName");
       showInSnackBar("Photo saved to $filePath/$fileName");
     } on Exception catch (e) {
       showInSnackBar(e.toString());
@@ -96,11 +104,31 @@ class CameraState extends GetxController {
             .then((value) => _maxAvailableExposureOffset = value),
         camCtrl!.getMaxZoomLevel().then((value) => _maxAvailableZoom = value),
         camCtrl!.getMinZoomLevel().then((value) => _minAvailableZoom = value),
+        camCtrl!.setFlashMode(flashMode),
       ]);
     } on CameraException catch (e) {
       showCameraException(e);
     }
     update();
+  }
+
+  saveState() async {
+    await settings.setString("basePath", basePath);
+    await settings.setString("filePath", filePath);
+    await settings.setString("prefix", prefix);
+  }
+
+  loadState() {
+    basePath = settings.getString("basePath") ?? "/storage/emulated/0/DCIM";
+    filePath = settings.getString("filePath") ?? "/storage/emulated/0/DCIM";
+    prefix = settings.getString("prefix") ?? "";
+    update();
+  }
+
+  @override
+  void onInit() {
+    loadState();
+    super.onInit();
   }
 
   callOtherApp() {}
