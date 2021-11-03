@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 import 'package:camera_app/domain/tree_widget_controller.dart';
+import 'package:notes_on_image/ui/screens/draw_on_image_screen.dart';
 
 part '_selector.dart';
 part '_title.dart';
@@ -37,7 +38,7 @@ class _TreeNodeTileState extends State<TreeNodeTile> {
           return Row(
             children: [
               LinesWidget(),
-              NodeWidgetLeadingIcon(useFoldersOnly: true),
+              NodeWidgetLeadingIcon(useFoldersOnly: false),
               const SizedBox(width: 8),
               Expanded(
                   child: _NodeTitle(

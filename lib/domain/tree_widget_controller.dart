@@ -18,11 +18,16 @@ class TreeWidgetController with ChangeNotifier {
 
   late String _path;
   late Function outputSetter;
+  Function? conditionalLunch;
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
-  TreeWidgetController({required String path, Function? pathSetCallback}) {
+  TreeWidgetController({
+    required String path,
+    Function? pathSetCallback,
+    this.conditionalLunch,
+  }) {
     _path = path;
     if (pathSetCallback != null) outputSetter = pathSetCallback;
   }
@@ -120,7 +125,7 @@ void buildFSTree({required TreeNode parent, required Directory dir}) {
     TreeNode d = TreeNode(
       id: UniqueKey().toString(),
       label: subFileNameFromPath(f.path),
-      data: f is File ? dir.path : f.path,
+      data: f.path,
     );
     if (f is Directory) {
       buildFSTree(

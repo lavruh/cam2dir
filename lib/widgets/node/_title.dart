@@ -21,7 +21,15 @@ class _NodeTitle extends StatelessWidget {
             : Theme.of(context).textTheme.subtitle1;
         return GestureDetector(
           onTap: () {
-            controller.toggleSelection(nodeScope.node.id);
+            final id = nodeScope.node.id;
+            controller.toggleSelection(id);
+            if (controller.conditionalLunch != null) {
+              controller
+                  .conditionalLunch!(controller.treeController.find(id)?.data);
+
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => NotesOnImageScreen()));
+            }
           },
           child: Text(
             nodeScope.node.label,

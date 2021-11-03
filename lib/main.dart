@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/widgets/info_widget.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,10 @@ import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   Get.put<SharedPreferences>(await SharedPreferences.getInstance());
+  Get.put<InfoWidgetState>(InfoWidgetState());
+
   cameras = await availableCameras();
   runApp(const CameraApp());
   camera.disposeCamera();
@@ -47,18 +51,14 @@ class _CameraAppState extends State<CameraApp>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // does not work
     // final CameraController? cameraController = camera.camCtrl;
-    print("LOAD STATE");
 
     if (state == AppLifecycleState.inactive) {
-      print("AppLifecycleState.inactive");
       camera.disposeCamera();
     } else if (state == AppLifecycleState.resumed) {
       camera.initCamera();
     } else if (state == AppLifecycleState.paused) {
-      print("AppLifecycleState.paused");
       camera.disposeCamera();
     } else if (state == AppLifecycleState.detached) {
-      print("AppLifecycleState.detached");
       camera.disposeCamera();
     }
   }
@@ -77,6 +77,7 @@ class _CameraAppState extends State<CameraApp>
               treeController: TreeWidgetController(
             path: camera.filePath,
             pathSetCallback: camera.setFilePath,
+            conditionalLunch: camera.showIfFile,
           )),
         ],
       ),

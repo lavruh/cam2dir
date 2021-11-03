@@ -4,6 +4,7 @@ import 'package:camera_app/di.dart';
 import 'package:camera_app/widgets/info_widget.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraState extends GetxController {
@@ -12,13 +13,14 @@ class CameraState extends GetxController {
   CameraState(this.camCtrl);
 
   SharedPreferences settings = Get.find();
-  // final Directory baseDir = Directory("/storage/emulated/0/DCIM").obs();
+  final info = Get.find<InfoWidgetState>();
+
   String basePath = "/storage/emulated/0/DCIM".obs();
   String filePath = "/storage/emulated/0/DCIM".obs();
   String fileName = "".obs();
   String prefix = "".obs();
-  FlashMode flashMode = FlashMode.off;
 
+  FlashMode flashMode = FlashMode.off;
   double _minAvailableExposureOffset = 0;
   double _maxAvailableExposureOffset = 0;
   double _maxAvailableZoom = 0;
@@ -43,8 +45,20 @@ class CameraState extends GetxController {
     setFilePath(val);
   }
 
+  bool showIfFile(String value) {
+    final editor = Get.find<DesignationOnImageState>();
+    print(value);
+    if (File(value).existsSync()) {
+      editor.loadImage(File(value));
+      return true;
+    }
+    return false;
+  }
+
   setFilePath(String value) {
-    filePath = value;
+    if (Directory(value).existsSync()) {
+      filePath = value;
+    }
     update();
   }
 
