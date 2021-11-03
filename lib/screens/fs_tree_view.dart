@@ -1,15 +1,14 @@
+import 'package:camera_app/domain/tree_widget_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 
 import 'package:camera_app/widgets/node/tree_node_tile.dart';
+import 'package:get/get.dart';
 
 class FsTreeView extends StatefulWidget {
-  FsTreeView({
-    key,
-    @required this.treeController,
-  }) : super(key: key);
+  FsTreeView({key}) : super(key: key);
 
-  var treeController;
+  final treeController = Get.find<TreeWidgetController>();
 
   @override
   _FsTreeViewState createState() => _FsTreeViewState();
@@ -19,6 +18,7 @@ class _FsTreeViewState extends State<FsTreeView> {
   @override
   Widget build(BuildContext context) {
     widget.treeController.init();
+
     Widget? content;
     if (widget.treeController.isInitialized) {
       content = ValueListenableBuilder<TreeViewTheme>(

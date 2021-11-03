@@ -4,6 +4,7 @@ class _NodeTitle extends StatelessWidget {
   _NodeTitle({Key? key, required this.controller}) : super(key: key);
 
   TreeWidgetController controller;
+  final editor = Get.find<PhotoPreviewState>();
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +23,12 @@ class _NodeTitle extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             final id = nodeScope.node.id;
-            controller.toggleSelection(id);
-            if (controller.conditionalLunch != null) {
-              controller
-                  .conditionalLunch!(controller.treeController.find(id)?.data);
+            String path = (controller.treeController.find(id)?.data) as String;
 
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => NotesOnImageScreen()));
+            if (editor.checkImageFile(path)) {
+              editor.openInEditor(context, path);
+            } else {
+              controller.toggleSelection(id);
             }
           },
           child: Text(

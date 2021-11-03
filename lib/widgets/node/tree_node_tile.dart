@@ -1,6 +1,8 @@
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 import 'package:camera_app/domain/tree_widget_controller.dart';
+import 'package:get/get.dart';
 import 'package:notes_on_image/ui/screens/draw_on_image_screen.dart';
 
 part '_selector.dart';

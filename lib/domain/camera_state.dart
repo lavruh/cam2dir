@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:camera_app/di.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/widgets/info_widget.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -11,8 +12,9 @@ class CameraState extends GetxController {
   CameraController? camCtrl =
       CameraController(cameras[0], ResolutionPreset.max);
 
-  SharedPreferences settings = Get.find();
+  final settings = Get.find<SharedPreferences>();
   final info = Get.find<InfoWidgetState>();
+  final photoPreview = Get.find<PhotoPreviewState>();
 
   String basePath = "/storage/emulated/0/DCIM".obs();
   String filePath = "/storage/emulated/0/DCIM".obs();
@@ -46,7 +48,6 @@ class CameraState extends GetxController {
 
   bool showIfFile(String value) {
     final editor = Get.find<DesignationOnImageState>();
-    print(value);
     if (File(value).existsSync()) {
       editor.loadImage(File(value));
       return true;

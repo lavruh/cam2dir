@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'di.dart';
 import 'package:camera_app/screens/fs_tree_view.dart';
-import 'package:camera_app/domain/tree_widget_controller.dart';
 import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
@@ -67,13 +66,8 @@ class _CameraAppState extends State<CameraApp>
         scrollDirection: Axis.horizontal,
         controller: controller,
         children: [
-          CameraScreen(),
-          FsTreeView(
-              treeController: TreeWidgetController(
-            path: camera.filePath,
-            pathSetCallback: camera.setFilePath,
-            conditionalLunch: camera.showIfFile,
-          )),
+          const CameraScreen(),
+          FsTreeView(),
         ],
       ),
     );
