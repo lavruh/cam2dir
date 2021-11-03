@@ -1,13 +1,9 @@
-import 'package:camera_app/di.dart';
+import 'package:camera_app/domain/camera_state.dart';
 import 'package:camera_app/widgets/cam_prev_widget.dart';
 import 'package:camera_app/widgets/control_buttons_widget.dart';
 import 'package:camera_app/widgets/file_location_widget.dart';
-import 'package:camera_app/widgets/info_widget.dart';
 import 'package:camera_app/widgets/photo_preview_widget.dart';
 import 'package:flutter/material.dart';
-// ignore: unused_import
-import 'package:intl/intl.dart';
-// ignore: unused_import
 import 'package:get/get.dart';
 
 class CameraScreen extends StatelessWidget {
@@ -15,9 +11,8 @@ class CameraScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    camera.initCamera();
+    Get.find<CameraState>().initCamera();
     return Scaffold(
-      key: scaffoldKey,
       backgroundColor: Colors.black87,
       body: Center(
         child: Wrap(

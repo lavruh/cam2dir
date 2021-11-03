@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class FileLocationWidget extends StatelessWidget {
-  CameraState state = Get.find();
-
   TextEditingController txtController = TextEditingController();
 
   FileLocationWidget({Key? key}) : super(key: key);
@@ -28,8 +26,8 @@ class FileLocationWidget extends StatelessWidget {
                     );
                   });
             },
-            child: Text(camera.filePath,
-                style: Theme.of(context).textTheme.headline3),
+            child:
+                Text(_.filePath, style: Theme.of(context).textTheme.headline3),
           );
         }),
         GetBuilder<CameraState>(

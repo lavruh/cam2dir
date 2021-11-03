@@ -8,9 +8,8 @@ import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraState extends GetxController {
-  CameraController? camCtrl;
-
-  CameraState(this.camCtrl);
+  CameraController? camCtrl =
+      CameraController(cameras[0], ResolutionPreset.max);
 
   SharedPreferences settings = Get.find();
   final info = Get.find<InfoWidgetState>();

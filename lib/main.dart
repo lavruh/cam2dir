@@ -1,8 +1,7 @@
 import 'dart:async';
+import 'package:camera_app/domain/camera_state.dart';
 import 'package:camera_app/domain/photo_preview_state.dart';
-import 'package:camera_app/widgets/info_widget.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'di.dart';
@@ -12,12 +11,10 @@ import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  Get.put<SharedPreferences>(await SharedPreferences.getInstance());
-  Get.put<InfoWidgetState>(InfoWidgetState());
-
   cameras = await availableCameras();
+  await init_dependencies();
   runApp(const CameraApp());
+  final camera = Get.find<CameraState>();
   camera.disposeCamera();
 }
 
@@ -31,6 +28,7 @@ class CameraApp extends StatefulWidget {
 class _CameraAppState extends State<CameraApp>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   PageController controller = PageController(initialPage: 0);
+  final camera = Get.find<CameraState>();
 
   @override
   void initState() {
@@ -49,9 +47,6 @@ class _CameraAppState extends State<CameraApp>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // does not work
-    // final CameraController? cameraController = camera.camCtrl;
-
     if (state == AppLifecycleState.inactive) {
       camera.disposeCamera();
     } else if (state == AppLifecycleState.resumed) {

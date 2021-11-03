@@ -5,12 +5,18 @@ import 'package:camera_app/widgets/info_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 List<CameraDescription> cameras = [];
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-var cam_controller = CameraController(cameras[0], ResolutionPreset.max);
+// var cam_controller = );
 
 final PhotoPreviewState photoPreview =
     Get.put<PhotoPreviewState>(PhotoPreviewState(), permanent: true);
-final CameraState camera =
-    Get.put<CameraState>(CameraState(cam_controller), permanent: true);
+// final CameraState camera =
+
+init_dependencies() async {
+  Get.put<SharedPreferences>(await SharedPreferences.getInstance());
+  Get.put<InfoWidgetState>(InfoWidgetState());
+
+  Get.put<CameraState>(CameraState(), permanent: true);
+}
