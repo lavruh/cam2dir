@@ -32,10 +32,7 @@ class _CameraAppState extends State<CameraApp>
   @override
   void initState() {
     super.initState();
-    controller.addListener(() {
-      Get.find<PhotoPreviewState>().saveState();
-      camera.saveState();
-    });
+    controller.addListener(() {});
   }
 
   @override
@@ -47,13 +44,13 @@ class _CameraAppState extends State<CameraApp>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive) {
-      camera.disposeCamera();
+      // camera.disposeCamera();
     } else if (state == AppLifecycleState.resumed) {
       camera.initCamera();
     } else if (state == AppLifecycleState.paused) {
-      camera.disposeCamera();
+      // camera.disposeCamera();
     } else if (state == AppLifecycleState.detached) {
-      camera.disposeCamera();
+      // camera.disposeCamera();
     }
   }
 

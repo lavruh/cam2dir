@@ -82,9 +82,10 @@ class CameraState extends GetxController {
     try {
       XFile pic = await camCtrl!.takePicture();
       fileName = generateFileName();
-      pic.saveTo("$filePath/$fileName");
-      photoPreview.addPhoto("$filePath/$fileName");
-      showInSnackBar("Photo saved to $filePath/$fileName");
+      final fileLocation = "$filePath/$prefix$fileName";
+      pic.saveTo(fileLocation);
+      photoPreview.addPhoto(fileLocation);
+      showInSnackBar("Photo saved to $fileLocation");
     } on Exception catch (e) {
       showInSnackBar(e.toString());
     }
@@ -94,7 +95,6 @@ class CameraState extends GetxController {
   void disposeCamera() async {
     if (camCtrl != null) {
       await camCtrl!.dispose();
-      showInSnackBar("controller dispose");
     }
   }
 

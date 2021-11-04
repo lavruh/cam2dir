@@ -32,24 +32,11 @@ class TreeWidgetController with ChangeNotifier {
     if (pathSetCallback != null) outputSetter = pathSetCallback;
   }
 
-  // static AppController of(BuildContext context) {
-  //   return context
-  //       .dependOnInheritedWidgetOfExactType<AppControllerScope>()!
-  //       .controller;
-  // }
-
   Future<void> init() async {
     if (_isInitialized) return;
 
-    final rootNode = TreeNode(id: UniqueKey().toString(), label: "root");
-    buildFSTree(
-      parent: rootNode,
-      dir: Directory(_path),
-    );
+    updateTree();
 
-    treeController = TreeViewController(
-      rootNode: rootNode,
-    );
     if (_selectedNodes.isNotEmpty) {
       var n = treeController.find(_selectedNodes.keys.last);
       if (n != null) treeController.expandUntil(n);
@@ -88,6 +75,17 @@ class TreeWidgetController with ChangeNotifier {
     );
   }
 
+  void updateTree() {
+    final rootNode = TreeNode(id: UniqueKey().toString(), label: "root");
+    buildFSTree(
+      parent: rootNode,
+      dir: Directory(_path),
+    );
+    treeController = TreeViewController(
+      rootNode: rootNode,
+    );
+  }
+
   void updateTheme(TreeViewTheme theme) {
     treeViewTheme.value = theme;
   }
@@ -98,6 +96,7 @@ class TreeWidgetController with ChangeNotifier {
 
   @override
   void dispose() {
+    _isInitialized = false;
     treeController.dispose();
     scrollController.dispose();
 

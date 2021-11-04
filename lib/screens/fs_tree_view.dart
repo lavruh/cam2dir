@@ -16,6 +16,17 @@ class FsTreeView extends StatefulWidget {
 
 class _FsTreeViewState extends State<FsTreeView> {
   @override
+  void initState() {
+    widget.treeController.updateTree();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     widget.treeController.init();
 
