@@ -4,6 +4,8 @@ import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+// TODO make smaller prev photos
+
 class PhotoPreviewWidget extends StatelessWidget {
   PhotoPreviewWidget({Key? key}) : super(key: key);
 
@@ -16,10 +18,10 @@ class PhotoPreviewWidget extends StatelessWidget {
       if (_.lastPhotos.isNotEmpty) {
         return Card(
           elevation: 3.0,
-          color: Colors.black54,
+          color: Colors.transparent,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: _.lastPhotos.map((e) {
               if (!_.checkImageFile(e.url)) {
                 return const Icon(

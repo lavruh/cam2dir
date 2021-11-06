@@ -10,45 +10,48 @@ class FileLocationWidget extends StatelessWidget {
   FileLocationWidget({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      children: [
-        GetBuilder<CameraState>(builder: (_) {
-          return ElevatedButton(
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return DialogWidget(
+    return ConstrainedBox(
+        constraints:
+            BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+        child: Wrap(
+          children: [
+            GetBuilder<CameraState>(builder: (_) {
+              return ElevatedButton(
+                onPressed: () {
+                  showDialog(
                       context: context,
-                      topic: "Base path :",
-                      initText: _.basePath,
-                      callback: _.setBasePath,
-                    );
-                  });
-            },
-            child:
-                Text(_.filePath, style: Theme.of(context).textTheme.headline3),
-          );
-        }),
-        GetBuilder<CameraState>(
-            builder: (_) => ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return DialogWidget(
+                      builder: (context) {
+                        return DialogWidget(
+                          context: context,
+                          topic: "Base path :",
+                          initText: _.basePath,
+                          callback: _.setBasePath,
+                        );
+                      });
+                },
+                child: Text(_.filePath,
+                    style: Theme.of(context).textTheme.headline3),
+              );
+            }),
+            GetBuilder<CameraState>(
+                builder: (_) => ElevatedButton(
+                      onPressed: () {
+                        showDialog(
                             context: context,
-                            topic: "Prefix :",
-                            initText: _.prefix,
-                            callback: _.setNamePrefix,
-                          );
-                        });
-                  },
-                  child: Text(
-                      "/${_.prefix}_${_.fileName != '' ? _.fileName : '...jpeg'}",
-                      style: Theme.of(context).textTheme.headline3),
-                )),
-      ],
-    );
+                            builder: (context) {
+                              return DialogWidget(
+                                context: context,
+                                topic: "Prefix :",
+                                initText: _.prefix,
+                                callback: _.setNamePrefix,
+                              );
+                            });
+                      },
+                      child: Text(
+                          "/${_.prefix}_${_.fileName != '' ? _.fileName : '...jpeg'}",
+                          style: Theme.of(context).textTheme.headline3),
+                    )),
+          ],
+        ));
   }
 }

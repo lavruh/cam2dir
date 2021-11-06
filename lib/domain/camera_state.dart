@@ -42,8 +42,12 @@ class CameraState extends GetxController {
   }
 
   setBasePath(String val) {
-    basePath = val;
-    setFilePath(val);
+    if (Directory(val).existsSync()) {
+      basePath = val;
+      setFilePath(val);
+    } else {
+      showInSnackBar("Directory does not exist");
+    }
   }
 
   bool showIfFile(String value) {
@@ -58,6 +62,8 @@ class CameraState extends GetxController {
   setFilePath(String value) {
     if (Directory(value).existsSync()) {
       filePath = value;
+    } else {
+      showInSnackBar("File path does not exist");
     }
     update();
   }
