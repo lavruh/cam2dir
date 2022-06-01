@@ -23,9 +23,9 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   void dispose() {
-    Get.find<CameraState>().disposeCamera();
-    Get.find<PhotoPreviewState>().saveState();
-    Get.find<CameraState>().saveState();
+    // Get.find<CameraState>().disposeCamera();
+    // Get.find<PhotoPreviewState>().saveState();
+    // Get.find<CameraState>().saveState();
     super.dispose();
   }
 
@@ -36,43 +36,27 @@ class _CameraScreenState extends State<CameraScreen> {
         dispose();
         return true;
       },
-      child: Scaffold(
-        backgroundColor: Colors.black87,
-        body: Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.width > 600
-                    ? MediaQuery.of(context).size.height
-                    : MediaQuery.of(context).size.width,
-                width: MediaQuery.of(context).size.width > 600
-                    ? MediaQuery.of(context).size.height
-                    : MediaQuery.of(context).size.width,
-                child: CamPrevWidget(),
-              ),
-              ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-                child: Wrap(
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.black87,
+          body: Center(
+            child: Stack(
+              alignment: AlignmentDirectional.bottomCenter,
+              children: [
+                const CamPrevWidget(),
+                Wrap(
                   direction: Axis.vertical,
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 5,
                   children: [
-                    FileLocationWidget(),
+                    const FileLocationWidget(),
                     const ControlButtonsWidget(),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width > 600
-                          ? MediaQuery.of(context).size.width * 0.3
-                          : MediaQuery.of(context).size.width,
-                      child: PhotoPreviewWidget(),
-                    ),
+                    PhotoPreviewWidget(),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

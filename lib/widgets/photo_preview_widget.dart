@@ -39,7 +39,9 @@ class PhotoPreviewWidget extends StatelessWidget {
           ),
         );
       } else {
-        return Container();
+        return Container(
+          height: 50,
+        );
       }
     });
   }

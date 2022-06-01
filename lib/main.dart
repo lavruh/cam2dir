@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:camera_app/domain/camera_state.dart';
-import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/domain/photo_proc_state.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -10,47 +10,48 @@ import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
-  await init_dependencies();
-  runApp(const CameraApp());
-  final camera = Get.find<CameraState>();
-  camera.disposeCamera();
+  if (await isPermissionsGranted()) {
+    cameras = await availableCameras();
+    await initDependencies();
+    runApp(const CameraApp());
+  }
 }
 
 class CameraApp extends StatefulWidget {
   const CameraApp({Key? key}) : super(key: key);
 
   @override
-  _CameraAppState createState() => _CameraAppState();
+  CameraAppState createState() => CameraAppState();
 }
 
-class _CameraAppState extends State<CameraApp>
+class CameraAppState extends State<CameraApp>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   PageController controller = PageController(initialPage: 0);
   final camera = Get.find<CameraState>();
+  final photoProcState = Get.find<PhotoProcState>();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     controller.addListener(() {});
   }
 
   @override
   void dispose() async {
     camera.disposeCamera();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.inactive) {
-      // camera.disposeCamera();
+      camera.disposeCamera();
+      photoProcState.saveState();
     } else if (state == AppLifecycleState.resumed) {
       camera.initCamera();
-    } else if (state == AppLifecycleState.paused) {
-      // camera.disposeCamera();
-    } else if (state == AppLifecycleState.detached) {
-      // camera.disposeCamera();
+      photoProcState.loadState();
     }
   }
 
@@ -64,7 +65,7 @@ class _CameraAppState extends State<CameraApp>
         controller: controller,
         children: [
           const CameraScreen(),
-          FsTreeView(),
+          // FsTreeView(),
         ],
       ),
     );
@@ -78,10 +79,13 @@ class _CameraAppState extends State<CameraApp>
               backgroundColor: MaterialStateProperty.all(Colors.grey))),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       fontFamily: "Georgia",
+      iconTheme: const IconThemeData(color: Colors.lightGreenAccent),
       textTheme: const TextTheme(
         headline1: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
         headline3: TextStyle(
-            fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white),
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightGreenAccent),
         headline6: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
         bodyText1: TextStyle(fontSize: 12.0),
       ));

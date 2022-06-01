@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/domain/photo_proc_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,47 +9,36 @@ class ControlButtonsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CameraState>(builder: (_) {
-      return Wrap(
-        spacing: 10,
-        alignment: WrapAlignment.center,
-        runAlignment: WrapAlignment.center,
-        children: [
-          _customButton(
-              child: getFlashIcon(_.flashMode),
-              onPressed: () {
-                _.toggleFlashMode();
-              }),
-          _customButton(
-              onPressed: () {
-                _.takePhoto();
-              },
-              child: const Icon(Icons.camera)),
-        ],
-      );
-    });
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        GetX<CameraState>(builder: (state) {
+          return IconButton(
+              onPressed: () => state.toggleFlashMode(),
+              icon: Icon(getFlashIcon(state.flashMode), size: 24));
+        }),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 42.0),
+          child: IconButton(
+              onPressed: () => Get.find<PhotoProcState>().takePhotoAndProcess(),
+              icon: const Icon(Icons.camera, size: 42)),
+        ),
+        IconButton(
+            onPressed: () => Get.find<CameraState>().toggleCamera(),
+            icon: const Icon(Icons.cameraswitch, size: 24)),
+      ],
+    );
   }
 
-  Widget _customButton({
-    required Widget child,
-    required void Function() onPressed,
-  }) {
-    return ElevatedButton(
-        style: ButtonStyle(
-            minimumSize:
-                MaterialStateProperty.all<Size>(const Size.square(50))),
-        onPressed: onPressed,
-        child: child);
-  }
-
-  Widget getFlashIcon(FlashMode flashMode) {
+  IconData getFlashIcon(FlashMode flashMode) {
     if (flashMode == FlashMode.auto) {
-      return const Icon(Icons.flash_auto);
+      return Icons.flash_auto;
     } else if (flashMode == FlashMode.always) {
-      return const Icon(Icons.flash_on);
+      return Icons.flash_on;
     } else if (flashMode == FlashMode.torch) {
-      return const Icon(Icons.flashlight_on);
+      return Icons.flashlight_on;
     }
-    return const Icon(Icons.flash_off);
+    return Icons.flash_off;
   }
 }

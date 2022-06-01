@@ -2,52 +2,27 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:camera_app/di.dart';
 import 'package:camera_app/domain/photo_preview_state.dart';
-import 'package:camera_app/widgets/info_widget.dart';
+import 'package:camera_app/services/user_info_service.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CameraState extends GetxController {
   CameraController? camCtrl =
       CameraController(cameras[0], ResolutionPreset.max);
 
-  final settings = Get.find<SharedPreferences>();
-  final info = Get.find<InfoWidgetState>();
   final photoPreview = Get.find<PhotoPreviewState>();
-
-  String basePath = "/storage/emulated/0/DCIM".obs();
-  String filePath = "/storage/emulated/0/DCIM".obs();
-  String fileName = "".obs();
-  String prefix = "".obs();
-
-  FlashMode flashMode = FlashMode.off;
-  double _minAvailableExposureOffset = 0;
-  double _maxAvailableExposureOffset = 0;
-  double _maxAvailableZoom = 0;
-  double _minAvailableZoom = 0;
-
-  String generateFileName({String prefix = ""}) {
-    return "${prefix}_${DateFormat("yMdjms").format(DateTime.now())}.jpg";
-  }
+  final _selectedCamera = cameras[0].obs;
+  final _flashMode = FlashMode.off.obs;
+  FlashMode get flashMode => _flashMode.value;
 
   toggleFlashMode() {
     if ((flashMode.index + 1) == FlashMode.values.length) {
-      flashMode = FlashMode.values.first;
+      _flashMode.value = FlashMode.values.first;
     } else {
-      flashMode = FlashMode.values[flashMode.index + 1];
+      _flashMode.value = FlashMode.values[flashMode.index + 1];
     }
     camCtrl?.setFlashMode(flashMode);
-    update();
-  }
-
-  setBasePath(String val) {
-    if (Directory(val).existsSync()) {
-      basePath = val;
-      setFilePath(val);
-    } else {
-      showInSnackBar("Directory does not exist");
-    }
   }
 
   bool showIfFile(String value) {
@@ -59,53 +34,48 @@ class CameraState extends GetxController {
     return false;
   }
 
-  setFilePath(String value) {
-    if (Directory(value).existsSync()) {
-      filePath = value;
+  toggleCamera() async {
+    final index = cameras.indexOf(_selectedCamera.value);
+    if (index == cameras.length - 1) {
+      _selectedCamera.value = cameras.first;
     } else {
-      showInSnackBar("File path does not exist");
+      _selectedCamera.value = cameras[index + 1];
+      await disposeCamera();
+      try {
+        await initCamera();
+      } on CameraException catch (e) {
+        _selectedCamera.value = cameras.first;
+        await disposeCamera();
+        await initCamera();
+      }
     }
-    update();
   }
 
-  setNamePrefix(String val) {
-    prefix = val;
-    update();
-  }
-
-  takePhoto() async {
-    info.showMsg("Take photo\n");
+  Future<XFile> takePhoto() async {
     if (!camCtrl!.value.isInitialized) {
-      showInSnackBar("Controller not init\n");
       initCamera();
-      return null;
+      throw Exception("Camera is not ready");
     }
     if (camCtrl!.value.isTakingPicture) {
-      showInSnackBar("CameraScreen busy\n");
       initCamera();
-      return null;
+      throw Exception("Camera is busy");
     }
-    try {
-      XFile pic = await camCtrl!.takePicture();
-      fileName = generateFileName();
-      final fileLocation = "$filePath/$prefix$fileName";
-      pic.saveTo(fileLocation);
-      photoPreview.addPhoto(fileLocation);
-      showInSnackBar("Photo saved to $fileLocation");
-    } on Exception catch (e) {
-      showInSnackBar(e.toString());
-    }
-    update();
+    return await camCtrl!.takePicture();
   }
 
-  void disposeCamera() async {
-    if (camCtrl != null) {
-      await camCtrl!.dispose();
+  disposeCamera() async {
+    final CameraController? oldController = camCtrl;
+    if (oldController != null) {
+      camCtrl = null;
+      await oldController.dispose();
     }
   }
 
-  void initCamera() async {
-    camCtrl = CameraController(cameras[0], ResolutionPreset.max);
+  initCamera() async {
+    if (cameras.isEmpty) {
+      return;
+    }
+    camCtrl = CameraController(_selectedCamera.value, ResolutionPreset.max);
 
     camCtrl!.addListener(() {
       if (camCtrl!.value.hasError) {
@@ -116,40 +86,14 @@ class CameraState extends GetxController {
     try {
       await camCtrl!.initialize();
       await Future.wait([
-        camCtrl!
-            .getMinExposureOffset()
-            .then((value) => _minAvailableExposureOffset = value),
-        camCtrl!
-            .getMaxExposureOffset()
-            .then((value) => _maxAvailableExposureOffset = value),
-        camCtrl!.getMaxZoomLevel().then((value) => _maxAvailableZoom = value),
-        camCtrl!.getMinZoomLevel().then((value) => _minAvailableZoom = value),
         camCtrl!.setFlashMode(flashMode),
       ]);
     } on CameraException catch (e) {
       showCameraException(e);
+      _selectedCamera.value = cameras.first;
+      await initCamera();
     }
+
     update();
   }
-
-  saveState() async {
-    await settings.setString("basePath", basePath);
-    await settings.setString("filePath", filePath);
-    await settings.setString("prefix", prefix);
-  }
-
-  loadState() {
-    basePath = settings.getString("basePath") ?? "/storage/emulated/0/DCIM";
-    filePath = settings.getString("filePath") ?? "/storage/emulated/0/DCIM";
-    prefix = settings.getString("prefix") ?? "";
-    update();
-  }
-
-  @override
-  void onInit() {
-    loadState();
-    super.onInit();
-  }
-
-  callOtherApp() {}
 }

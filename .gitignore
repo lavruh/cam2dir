@@ -11,6 +11,7 @@
 linux
 windows
 .metadata
+*.sh
 
 # IntelliJ related
 *.iml

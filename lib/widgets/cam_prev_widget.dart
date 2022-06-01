@@ -8,9 +8,12 @@ class CamPrevWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final devWidth = MediaQuery.of(context).size.width;
     return GetBuilder<CameraState>(builder: (_) {
       if ((_.camCtrl != null) & (!_.camCtrl!.value.isInitialized)) {
         return Container(
+          width: 300,
+          height: 300,
           color: Colors.indigo,
           child: const Center(
             child: Text(
@@ -20,11 +23,8 @@ class CamPrevWidget extends StatelessWidget {
         );
       } else {
         CameraController controller = _.camCtrl!;
-        // controller.unlockCaptureOrientation();
-        return Transform.scale(
-          scale: 1,
-          child: AspectRatio(aspectRatio: 1, child: CameraPreview(controller)),
-        );
+        controller.unlockCaptureOrientation();
+        return CameraPreview(controller);
       }
     });
   }

@@ -1,13 +1,13 @@
-import 'package:camera_app/di.dart';
-import 'package:camera_app/domain/camera_state.dart';
-import 'package:camera_app/widgets/prefix_dialog_widget.dart';
+import 'package:camera_app/domain/photo_proc_state.dart';
+import 'package:camera_app/widgets/dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class FileLocationWidget extends StatelessWidget {
-  TextEditingController txtController = TextEditingController();
+  // TextEditingController txtController = TextEditingController();
 
-  FileLocationWidget({Key? key}) : super(key: key);
+  const FileLocationWidget({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -15,8 +15,8 @@ class FileLocationWidget extends StatelessWidget {
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
         child: Wrap(
           children: [
-            GetBuilder<CameraState>(builder: (_) {
-              return ElevatedButton(
+            GetX<PhotoProcState>(builder: (_) {
+              return TextButton(
                 onPressed: () {
                   showDialog(
                       context: context,
@@ -24,17 +24,17 @@ class FileLocationWidget extends StatelessWidget {
                         return DialogWidget(
                           context: context,
                           topic: "Base path :",
-                          initText: _.basePath,
+                          initText: _.basePath.value,
                           callback: _.setBasePath,
                         );
                       });
                 },
-                child: Text(_.filePath,
+                child: Text(_.filePath.value,
                     style: Theme.of(context).textTheme.headline3),
               );
             }),
-            GetBuilder<CameraState>(
-                builder: (_) => ElevatedButton(
+            GetX<PhotoProcState>(
+                builder: (_) => TextButton(
                       onPressed: () {
                         showDialog(
                             context: context,
@@ -42,13 +42,12 @@ class FileLocationWidget extends StatelessWidget {
                               return DialogWidget(
                                 context: context,
                                 topic: "Prefix :",
-                                initText: _.prefix,
+                                initText: _.prefix.value,
                                 callback: _.setNamePrefix,
                               );
                             });
                       },
-                      child: Text(
-                          "/${_.prefix}_${_.fileName != '' ? _.fileName : '...jpeg'}",
+                      child: Text("/${_.prefix}_${_.fileName}",
                           style: Theme.of(context).textTheme.headline3),
                     )),
           ],
