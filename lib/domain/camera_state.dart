@@ -4,7 +4,6 @@ import 'package:camera_app/di.dart';
 import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/services/user_info_service.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 
 class CameraState extends GetxController {
@@ -43,7 +42,7 @@ class CameraState extends GetxController {
       await disposeCamera();
       try {
         await initCamera();
-      } on CameraException catch (e) {
+      } on CameraException {
         _selectedCamera.value = cameras.first;
         await disposeCamera();
         await initCamera();

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/services/user_info_service.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -59,7 +60,7 @@ class PhotoProcState extends GetxController {
       fileName.value = generateFileName();
       final fileLocation = "$filePath/$prefix$fileName";
       pic.saveTo(fileLocation);
-      // photoPreview.addPhoto(fileLocation);
+      Get.find<PhotoPreviewState>().addPhoto(fileLocation);
       showInSnackBar("Photo saved to $fileLocation");
     } on Exception catch (e) {
       showInSnackBar(e.toString());

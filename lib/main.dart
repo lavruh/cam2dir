@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/domain/photo_proc_state.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'di.dart';
-import 'package:camera_app/screens/fs_tree_view.dart';
 import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
@@ -29,12 +29,16 @@ class CameraAppState extends State<CameraApp>
   PageController controller = PageController(initialPage: 0);
   final camera = Get.find<CameraState>();
   final photoProcState = Get.find<PhotoProcState>();
+  final photoPreviewState = Get.find<PhotoPreviewState>();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    photoProcState.loadState();
+    photoPreviewState.loadState();
     controller.addListener(() {});
+    camera.initCamera();
   }
 
   @override
@@ -49,9 +53,11 @@ class CameraAppState extends State<CameraApp>
     if (state == AppLifecycleState.inactive) {
       camera.disposeCamera();
       photoProcState.saveState();
+      photoPreviewState.saveState();
     } else if (state == AppLifecycleState.resumed) {
       camera.initCamera();
       photoProcState.loadState();
+      Get.find<PhotoPreviewState>().loadState();
     }
   }
 

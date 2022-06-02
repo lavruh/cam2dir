@@ -1,34 +1,28 @@
 import 'dart:io';
 
-import 'package:camera_app/domain/camera_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 import 'package:notes_on_image/ui/screens/draw_on_image_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PhotoPreviewState extends GetxController {
-  List<PhotoItem> lastPhotos = [];
+  final lastPhotos = <String>["", "", "", "", ""].obs;
   SharedPreferences settings = Get.find();
   final editor = Get.put<DesignationOnImageState>(DesignationOnImageState());
 
   addPhoto(String url) {
-    lastPhotos.insert(0, PhotoItem(UniqueKey().toString(), url));
+    lastPhotos.insert(0, url);
     if (lastPhotos.length == 6) lastPhotos.removeLast();
-    update();
   }
 
   saveState() async {
-    List<String> urls = [];
-    for (PhotoItem item in lastPhotos) {
-      urls.add(item.url);
-    }
-    await settings.setStringList("lastPhotos", urls);
+    await settings.setStringList("lastPhotos", lastPhotos);
   }
 
   loadState() {
-    List<String> urls = settings.getStringList("lastPhotos") ?? [];
+    List<String> urls =
+        settings.getStringList("lastPhotos")?.reversed.toList() ?? [];
     for (String url in urls) {
       addPhoto(url);
     }
@@ -60,11 +54,4 @@ class PhotoPreviewState extends GetxController {
     await saveState();
     super.onClose();
   }
-}
-
-class PhotoItem {
-  final String id;
-  final String url;
-
-  PhotoItem(this.id, this.url);
 }

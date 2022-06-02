@@ -4,45 +4,33 @@ import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-// TODO make smaller prev photos
-
 class PhotoPreviewWidget extends StatelessWidget {
-  PhotoPreviewWidget({Key? key}) : super(key: key);
-
-  final state =
-      Get.put<PhotoPreviewState>(PhotoPreviewState(), permanent: true);
+  const PhotoPreviewWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<PhotoPreviewState>(builder: (_) {
+    return GetX<PhotoPreviewState>(builder: (_) {
+      Widget child = Container();
       if (_.lastPhotos.isNotEmpty) {
-        return Card(
-          elevation: 3.0,
-          color: Colors.transparent,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: _.lastPhotos.map((e) {
-              if (!_.checkImageFile(e.url)) {
-                return const Icon(
-                  Icons.photo_camera,
-                  color: Colors.grey,
-                );
-              }
-              return PhotoThumbnail(
-                item: e,
-                onTap: () {
-                  _.openInEditor(context, e.url);
-                },
-              );
-            }).toList(),
-          ),
-        );
-      } else {
-        return Container(
-          height: 50,
+        child = Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: _.lastPhotos.map((url) {
+            if (!_.checkImageFile(url)) {
+              return const SizedBox(height: 60, width: 60);
+            }
+            return PhotoThumbnail(
+              item: url,
+              onTap: () => _.openInEditor(context, url),
+            );
+          }).toList(),
         );
       }
+      return SizedBox(
+        height: 80,
+        width: MediaQuery.of(context).size.width,
+        child: child,
+      );
     });
   }
 }
@@ -54,9 +42,8 @@ class PhotoThumbnail extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
-  final PhotoItem item;
-
-  final GestureTapCallback onTap;
+  final String item;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +52,9 @@ class PhotoThumbnail extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Hero(
-            tag: item.id,
+            tag: item,
             child: Image.file(
-              File(item.url),
+              File(item),
               height: 60.0,
               width: 60.0,
             )),

@@ -8,7 +8,6 @@ class CamPrevWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final devWidth = MediaQuery.of(context).size.width;
     return GetBuilder<CameraState>(builder: (_) {
       if ((_.camCtrl != null) & (!_.camCtrl!.value.isInitialized)) {
         return Container(
