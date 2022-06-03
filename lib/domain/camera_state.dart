@@ -39,14 +39,14 @@ class CameraState extends GetxController {
       _selectedCamera.value = cameras.first;
     } else {
       _selectedCamera.value = cameras[index + 1];
+    }
+    await disposeCamera();
+    try {
+      await initCamera();
+    } on CameraException {
+      _selectedCamera.value = cameras.first;
       await disposeCamera();
-      try {
-        await initCamera();
-      } on CameraException {
-        _selectedCamera.value = cameras.first;
-        await disposeCamera();
-        await initCamera();
-      }
+      await initCamera();
     }
   }
 
