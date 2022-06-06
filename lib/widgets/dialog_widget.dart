@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class DialogWidget extends StatefulWidget {
   final String topic;
   final Function(String) callback;
+  final String? Function(String? val)? validator;
   final String text;
 
   const DialogWidget({
@@ -11,6 +12,7 @@ class DialogWidget extends StatefulWidget {
     String? initText,
     this.topic = "",
     required this.callback,
+    this.validator,
   })  : text = initText ?? "",
         super(key: key);
 
@@ -20,6 +22,7 @@ class DialogWidget extends StatefulWidget {
 
 class _DialogWidgetState extends State<DialogWidget> {
   TextEditingController txtController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -36,20 +39,26 @@ class _DialogWidgetState extends State<DialogWidget> {
         elevation: 5,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Wrap(
-            children: [
-              TextField(
-                controller: txtController,
-                decoration: InputDecoration(
-                    labelText: widget.topic,
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          widget.callback(txtController.text);
-                          Navigator.of(context, rootNavigator: true).pop();
-                        },
-                        icon: const Icon(Icons.check))),
-              ),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Wrap(
+              children: [
+                TextFormField(
+                  controller: txtController,
+                  validator: widget.validator,
+                  decoration: InputDecoration(
+                      labelText: widget.topic,
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              widget.callback(txtController.text);
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
+                          },
+                          icon: const Icon(Icons.check))),
+                ),
+              ],
+            ),
           ),
         ),
       ),

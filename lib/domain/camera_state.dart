@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:camera_app/di.dart';
 import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/services/user_info_service.dart';
 import 'package:get/get.dart';
-import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 
 class CameraState extends GetxController {
   CameraController? camCtrl =
@@ -22,15 +20,6 @@ class CameraState extends GetxController {
       _flashMode.value = FlashMode.values[flashMode.index + 1];
     }
     camCtrl?.setFlashMode(flashMode);
-  }
-
-  bool showIfFile(String value) {
-    final editor = Get.find<DesignationOnImageState>();
-    if (File(value).existsSync()) {
-      editor.loadImage(File(value));
-      return true;
-    }
-    return false;
   }
 
   toggleCamera() async {

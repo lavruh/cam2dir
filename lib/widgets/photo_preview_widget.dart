@@ -21,7 +21,7 @@ class PhotoPreviewWidget extends StatelessWidget {
             }
             return PhotoThumbnail(
               item: url,
-              onTap: () => _.openInEditor(context, url),
+              onTap: () => _.openInEditor(url),
             );
           }).toList(),
         );

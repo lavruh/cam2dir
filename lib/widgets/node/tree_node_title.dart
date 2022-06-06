@@ -1,10 +1,11 @@
-part of 'tree_node_tile.dart';
+import 'package:camera_app/domain/tree_widget_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 
-class _NodeTitle extends StatelessWidget {
-  _NodeTitle({Key? key, required this.controller}) : super(key: key);
+class NodeTitle extends StatelessWidget {
+  const NodeTitle({Key? key, required this.controller}) : super(key: key);
 
-  TreeWidgetController controller;
-  final editor = Get.find<PhotoPreviewState>();
+  final TreeWidgetController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +24,7 @@ class _NodeTitle extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             final id = nodeScope.node.id;
-            String path = (controller.treeController.find(id)?.data) as String;
-
-            if (editor.checkImageFile(path)) {
-              editor.openInEditor(context, path);
-            } else {
-              controller.toggleSelection(id);
-            }
+            controller.toggleSelection(id);
           },
           child: Text(
             nodeScope.node.label,

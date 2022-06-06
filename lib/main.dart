@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:camera_app/domain/camera_state.dart';
 import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:camera_app/domain/photo_proc_state.dart';
+import 'package:camera_app/screens/fs_tree_view.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -71,7 +72,7 @@ class CameraAppState extends State<CameraApp>
         controller: controller,
         children: [
           const CameraScreen(),
-          // FsTreeView(),
+          FsTreeView(),
         ],
       ),
     );

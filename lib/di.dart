@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:camera_app/domain/tree_widget_controller.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:camera/camera.dart';
 import 'package:camera_app/domain/camera_state.dart';
@@ -15,12 +16,12 @@ initDependencies() async {
   Get.put<SharedPreferences>(await SharedPreferences.getInstance());
   Get.put<PhotoPreviewState>(PhotoPreviewState());
   Get.put<CameraState>(CameraState());
-  Get.put(PhotoProcState());
-  // Get.put<TreeWidgetController>(TreeWidgetController(
-  //   path: camera.filePath.value,
-  //   pathSetCallback: camera.setFilePath,
-  //   conditionalLunch: camera.showIfFile,
-  // ));
+  final photoProc = Get.put(PhotoProcState());
+  Get.put<TreeWidgetController>(TreeWidgetController(
+    path: photoProc.filePath.value,
+    pathSetCallback: photoProc.setFilePath,
+    conditionalLunch: photoProc.showIfFile,
+  ));
 }
 
 Future<bool> isPermissionsGranted() async {

@@ -1,4 +1,6 @@
+import 'package:camera_app/domain/photo_proc_state.dart';
 import 'package:camera_app/domain/tree_widget_controller.dart';
+import 'package:camera_app/widgets/dialog_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 
@@ -7,16 +9,16 @@ import 'package:get/get.dart';
 
 class FsTreeView extends StatefulWidget {
   FsTreeView({key}) : super(key: key);
-
   final treeController = Get.find<TreeWidgetController>();
-
   @override
-  _FsTreeViewState createState() => _FsTreeViewState();
+  FsTreeViewState createState() => FsTreeViewState();
 }
 
-class _FsTreeViewState extends State<FsTreeView> {
+class FsTreeViewState extends State<FsTreeView> {
   @override
   void initState() {
+    widget.treeController
+        .init(selectedId: Get.find<PhotoProcState>().filePath.value);
     widget.treeController.updateTree();
     super.initState();
   }
@@ -28,15 +30,12 @@ class _FsTreeViewState extends State<FsTreeView> {
 
   @override
   Widget build(BuildContext context) {
-    widget.treeController.init();
-
     Widget? content;
     if (widget.treeController.isInitialized) {
       content = ValueListenableBuilder<TreeViewTheme>(
         valueListenable: widget.treeController.treeViewTheme,
         builder: (_, treeViewTheme, __) {
           return Scrollbar(
-            isAlwaysShown: false,
             child: TreeView(
               controller: widget.treeController.treeController,
               theme: treeViewTheme,
@@ -54,7 +53,36 @@ class _FsTreeViewState extends State<FsTreeView> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Select output directory'),
+        actions: [
+          IconButton(
+              onPressed: _addFolder, icon: const Icon(Icons.create_new_folder)),
+        ],
+      ),
       body: content,
     );
+  }
+
+  _addFolder() async {
+    final state = Get.find<PhotoProcState>();
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return DialogWidget(
+            context: context,
+            topic: "Dir name :",
+            initText: "",
+            callback: (val) => state.createFolder(name: val),
+            validator: (String? val) {
+              if (val == null || val.isEmpty) {
+                return "Name can not be empty";
+              }
+              return null;
+            },
+          );
+        });
+    widget.treeController.updateTree();
+    setState(() {});
   }
 }

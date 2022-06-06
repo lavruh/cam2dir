@@ -1,8 +1,8 @@
 import 'dart:io';
-
+import 'package:camera_app/domain/photo_preview_state.dart';
 import 'package:flutter/widgets.dart';
-
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
+import 'package:get/get.dart';
 
 const String kRootId = 'Root';
 
@@ -10,12 +10,11 @@ enum ExpansionButtonType { folderFile, chevron }
 
 class TreeWidgetController with ChangeNotifier {
   late TreeViewController treeController;
-  Map<String, bool> _selectedNodes = {};
+  final Map<String, bool> _selectedNodes = {};
   final nodeHeight = 30.0;
   ScrollController scrollController = ScrollController();
   final treeViewTheme = ValueNotifier(const TreeViewTheme());
   final expansionButtonType = ValueNotifier(ExpansionButtonType.folderFile);
-
   late String _path;
   late Function outputSetter;
   Function? conditionalLunch;
@@ -32,26 +31,27 @@ class TreeWidgetController with ChangeNotifier {
     if (pathSetCallback != null) outputSetter = pathSetCallback;
   }
 
-  Future<void> init() async {
+  Future<void> init({String? selectedId}) async {
     if (_isInitialized) return;
-
-    updateTree();
-
-    if (_selectedNodes.isNotEmpty) {
-      var n = treeController.find(_selectedNodes.keys.last);
-      if (n != null) treeController.expandUntil(n);
+    if (selectedId != null) {
+      _select(selectedId);
     }
-
+    updateTree();
     _isInitialized = true;
   }
 
   bool isSelected(String id) => _selectedNodes[id] ?? false;
 
   void toggleSelection(String id, [bool? shouldSelect]) {
-    _selectedNodes.clear();
-    _select(id);
-    outputSetter(treeController.find(id)?.data);
-    notifyListeners();
+    final editor = Get.find<PhotoPreviewState>();
+    if (editor.checkImageFile(id)) {
+      editor.openInEditor(id);
+    } else {
+      _selectedNodes.clear();
+      _select(id);
+      outputSetter(id);
+      notifyListeners();
+    }
   }
 
   void _select(String id) => _selectedNodes[id] = true;
@@ -84,6 +84,11 @@ class TreeWidgetController with ChangeNotifier {
     treeController = TreeViewController(
       rootNode: rootNode,
     );
+
+    if (_selectedNodes.isNotEmpty) {
+      var n = treeController.find(_selectedNodes.keys.last);
+      if (n != null) treeController.expandUntil(n);
+    }
   }
 
   void updateTheme(TreeViewTheme theme) {
@@ -106,25 +111,12 @@ class TreeWidgetController with ChangeNotifier {
   }
 }
 
-// class AppControllerScope extends InheritedWidget {
-//   const AppControllerScope({
-//     Key? key,
-//     required this.controller,
-//     required Widget child,
-//   }) : super(key: key, child: child);
-
-//   final AppController controller;
-
-//   @override
-//   bool updateShouldNotify(AppControllerScope oldWidget) => false;
-// }
-
 void buildFSTree({required TreeNode parent, required Directory dir}) {
   for (FileSystemEntity f in dir.listSync()) {
     TreeNode d = TreeNode(
-      id: UniqueKey().toString(),
+      id: f.path,
       label: subFileNameFromPath(f.path),
-      data: f.path,
+      data: f is Directory ? true : false,
     );
     if (f is Directory) {
       buildFSTree(
