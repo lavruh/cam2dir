@@ -1,13 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void showInSnackBar(String msg) {
-  // key.currentState?.showSnackBar(SnackBar(content: Text(msg)));
-  ScaffoldMessenger(
-    child: SnackBar(
-      content: Text(msg),
-    ),
-  );
+  Get.snackbar("Msg", msg, colorText: Colors.green);
 }
 
 void showCameraException(CameraException e) {

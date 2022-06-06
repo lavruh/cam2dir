@@ -1,77 +1,98 @@
 import 'dart:async';
-import 'package:camera_app/screens/camera_screen.dart';
-import 'package:camera_app/screens/folder_select_screen.dart';
+import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/domain/photo_proc_state.dart';
+import 'package:camera_app/screens/fs_tree_view.dart';
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'di.dart';
+import 'package:camera_app/screens/camera_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
-  runApp(const CameraApp());
+  if (await isPermissionsGranted()) {
+    cameras = await availableCameras();
+    await initDependencies();
+    runApp(const CameraApp());
+  }
 }
 
 class CameraApp extends StatefulWidget {
   const CameraApp({Key? key}) : super(key: key);
 
   @override
-  _CameraAppState createState() => _CameraAppState();
+  CameraAppState createState() => CameraAppState();
 }
 
-class _CameraAppState extends State<CameraApp> {
+class CameraAppState extends State<CameraApp>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   PageController controller = PageController(initialPage: 0);
+  final camera = Get.find<CameraState>();
+  final photoProcState = Get.find<PhotoProcState>();
+  final photoPreviewState = Get.find<PhotoPreviewState>();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    photoProcState.loadState();
+    photoPreviewState.loadState();
+    controller.addListener(() {});
+    camera.initCamera();
   }
 
   @override
-  void dispose() {
+  void dispose() async {
+    camera.disposeCamera();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // does not work
-    final CameraController? cameraController = camera.camCtrl;
-
-    print("App state -> $state");
-    // App state changed before we got the chance to initialize.
-    if (cameraController == null || !cameraController.value.isInitialized) {
-      return;
-    }
     if (state == AppLifecycleState.inactive) {
-      cameraController.dispose();
+      camera.disposeCamera();
+      photoProcState.saveState();
+      photoPreviewState.saveState();
     } else if (state == AppLifecycleState.resumed) {
-      cameraController.initialize();
+      camera.initCamera();
+      photoProcState.loadState();
+      Get.find<PhotoPreviewState>().loadState();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       theme: _theme,
       home: PageView(
         scrollDirection: Axis.horizontal,
         controller: controller,
         children: [
-          CameraScreen(),
-          FolderSelectScreen(),
+          const CameraScreen(),
+          FsTreeView(),
         ],
       ),
     );
   }
 
   final ThemeData _theme = ThemeData(
-      primarySwatch: Colors.green,
+      primarySwatch: Colors.grey,
+      primaryColor: Colors.grey,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.grey))),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       fontFamily: "Georgia",
+      iconTheme: const IconThemeData(color: Colors.lightGreenAccent),
       textTheme: const TextTheme(
         headline1: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
         headline3: TextStyle(
-            fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.green),
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.lightGreenAccent),
         headline6: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
         bodyText1: TextStyle(fontSize: 12.0),
       ));

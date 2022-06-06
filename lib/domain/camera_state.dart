@@ -1,62 +1,69 @@
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:camera_app/di.dart';
-import 'package:camera_app/widgets/info_widget.dart';
+import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/services/user_info_service.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 class CameraState extends GetxController {
-  CameraController? camCtrl;
+  CameraController? camCtrl =
+      CameraController(cameras[0], ResolutionPreset.max);
 
-  CameraState(this.camCtrl);
+  final photoPreview = Get.find<PhotoPreviewState>();
+  final _selectedCamera = cameras[0].obs;
+  final _flashMode = FlashMode.off.obs;
+  FlashMode get flashMode => _flashMode.value;
 
-  final Directory baseDir = Directory("/storage/emulated/0/DCIM").obs();
-  String filePath = "/storage/emulated/0/DCIM".obs();
-  String fileName = "".obs();
-  String prefix = "".obs();
-
-  double _minAvailableExposureOffset = 0;
-  double _maxAvailableExposureOffset = 0;
-  double _maxAvailableZoom = 0;
-  double _minAvailableZoom = 0;
-
-  String generateFileName({String prefix = ""}) {
-    return "${prefix}_${DateFormat("yMdjms").format(DateTime.now())}.jpg";
+  toggleFlashMode() {
+    if ((flashMode.index + 1) == FlashMode.values.length) {
+      _flashMode.value = FlashMode.values.first;
+    } else {
+      _flashMode.value = FlashMode.values[flashMode.index + 1];
+    }
+    camCtrl?.setFlashMode(flashMode);
   }
 
-  setFilePath(String value) {
-    filePath = value;
-    update();
+  toggleCamera() async {
+    final index = cameras.indexOf(_selectedCamera.value);
+    if (index == cameras.length - 1) {
+      _selectedCamera.value = cameras.first;
+    } else {
+      _selectedCamera.value = cameras[index + 1];
+    }
+    await disposeCamera();
+    try {
+      await initCamera();
+    } on CameraException {
+      _selectedCamera.value = cameras.first;
+      await disposeCamera();
+      await initCamera();
+    }
   }
 
-  takePhoto() async {
-    // printMsg("Take photo\n");
+  Future<XFile> takePhoto() async {
     if (!camCtrl!.value.isInitialized) {
-      // printMsg("Controller not init\n");
       initCamera();
-      return null;
+      throw Exception("Camera is not ready");
     }
     if (camCtrl!.value.isTakingPicture) {
-      // printMsg("CameraScreen busy\n");
       initCamera();
-      return null;
+      throw Exception("Camera is busy");
     }
-    try {
-      XFile pic = await camCtrl!.takePicture();
-      pic.saveTo("$filePath/$fileName");
-      fileName = generateFileName();
-      // printMsg("Photo saved to $filePath/$fileName");
-    } on Exception catch (e) {
-      // printMsg(e.toString());
-    }
-    update();
+    return await camCtrl!.takePicture();
   }
 
-  void initCamera() async {
-    if (camCtrl != null) {
-      await camCtrl!.dispose();
+  disposeCamera() async {
+    final CameraController? oldController = camCtrl;
+    if (oldController != null) {
+      camCtrl = null;
+      await oldController.dispose();
     }
-    camCtrl = CameraController(cameras[0], ResolutionPreset.max);
+  }
+
+  initCamera() async {
+    if (cameras.isEmpty) {
+      return;
+    }
+    camCtrl = CameraController(_selectedCamera.value, ResolutionPreset.max);
 
     camCtrl!.addListener(() {
       if (camCtrl!.value.hasError) {
@@ -67,19 +74,14 @@ class CameraState extends GetxController {
     try {
       await camCtrl!.initialize();
       await Future.wait([
-        camCtrl!
-            .getMinExposureOffset()
-            .then((value) => _minAvailableExposureOffset = value),
-        camCtrl!
-            .getMaxExposureOffset()
-            .then((value) => _maxAvailableExposureOffset = value),
-        camCtrl!.getMaxZoomLevel().then((value) => _maxAvailableZoom = value),
-        camCtrl!.getMinZoomLevel().then((value) => _minAvailableZoom = value),
+        camCtrl!.setFlashMode(flashMode),
       ]);
     } on CameraException catch (e) {
       showCameraException(e);
+      _selectedCamera.value = cameras.first;
+      await initCamera();
     }
-  }
 
-  callOtherApp() {}
+    update();
+  }
 }
