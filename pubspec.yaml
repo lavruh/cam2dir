@@ -2,7 +2,7 @@ name: camera_app
 description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.1.2+1
+version: 1.1.3+1
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
@@ -21,7 +21,7 @@ dependencies:
     path: /home/lavruh/AndroidStudioProjects/NotesOnImage
   image: ^3.0.8
   device_info_plus: ^3.2.3
-  permission_handler: ^8.3.0
+  permission_handler: ^9.2.0
   path: ^1.8.1
 
 

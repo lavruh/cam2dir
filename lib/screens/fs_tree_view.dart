@@ -24,30 +24,27 @@ class FsTreeViewState extends State<FsTreeView> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget? content;
     if (widget.treeController.isInitialized) {
-      content = ValueListenableBuilder<TreeViewTheme>(
-        valueListenable: widget.treeController.treeViewTheme,
-        builder: (_, treeViewTheme, __) {
-          return Scrollbar(
-            child: TreeView(
-              controller: widget.treeController.treeController,
-              theme: treeViewTheme,
-              scrollController: widget.treeController.scrollController,
-              nodeHeight: widget.treeController.nodeHeight,
-              nodeBuilder: (_, __) => TreeNodeTile(
-                controller: widget.treeController,
-              ),
-            ),
-          );
-        },
-      );
+      content = ValueListenableBuilder<TreeViewController>(
+          valueListenable: widget.treeController.treeCtrl,
+          builder: (context, treeController, __) {
+            return ValueListenableBuilder<TreeViewTheme>(
+                valueListenable: widget.treeController.treeViewTheme,
+                builder: (_, treeViewTheme, __) {
+                  return Scrollbar(
+                      child: TreeView(
+                    controller: widget.treeController.treeController,
+                    theme: treeViewTheme,
+                    scrollController: widget.treeController.scrollController,
+                    nodeHeight: widget.treeController.nodeHeight,
+                    nodeBuilder: (_, __) => TreeNodeTile(
+                      controller: widget.treeController,
+                    ),
+                  ));
+                });
+          });
     } else {
       content = const CircularProgressIndicator();
     }
@@ -56,6 +53,25 @@ class FsTreeViewState extends State<FsTreeView> {
       appBar: AppBar(
         title: const Text('Select output directory'),
         actions: [
+          ValueListenableBuilder<SortType>(
+              valueListenable: widget.treeController.sortType,
+              builder: (context, sortType, __) {
+                late Widget icon;
+                if (sortType == SortType.byName) {
+                  icon = const Icon(Icons.sort_by_alpha);
+                }
+                if (sortType == SortType.byChange) {
+                  icon = const Icon(Icons.source_outlined);
+                }
+
+                return IconButton(
+                  onPressed: () {
+                    widget.treeController.toggleSortType();
+                    setState(() {});
+                  },
+                  icon: icon,
+                );
+              }),
           IconButton(
               onPressed: _addFolder, icon: const Icon(Icons.create_new_folder)),
         ],
@@ -83,6 +99,5 @@ class FsTreeViewState extends State<FsTreeView> {
           );
         });
     widget.treeController.updateTree();
-    setState(() {});
   }
 }

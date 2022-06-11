@@ -35,10 +35,10 @@ class PhotoPreviewState extends GetxController {
     return false;
   }
 
-  openInEditor(String path) {
+  openInEditor(String path) async {
     final f = File(path);
     editor.loadImage(f);
-    Get.to(NotesOnImageScreen());
+    await Get.to(() => const NotesOnImageScreen());
   }
 
   @override

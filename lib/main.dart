@@ -93,6 +93,7 @@ class CameraAppState extends State<CameraApp>
             fontSize: 16.0,
             fontWeight: FontWeight.bold,
             color: Colors.lightGreenAccent),
+        headline5: TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold),
         headline6: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),
         bodyText1: TextStyle(fontSize: 12.0),
       ));

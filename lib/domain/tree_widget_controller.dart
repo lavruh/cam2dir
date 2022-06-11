@@ -8,8 +8,16 @@ const String kRootId = 'Root';
 
 enum ExpansionButtonType { folderFile, chevron }
 
+enum SortType { byName, byChange }
+
 class TreeWidgetController with ChangeNotifier {
-  late TreeViewController treeController;
+  final treeCtrl = ValueNotifier(
+      TreeViewController(rootNode: TreeNode(id: "0", label: "root")));
+  TreeViewController get treeController => treeCtrl.value;
+  set treeController(TreeViewController val) {
+    treeCtrl.value = val;
+  }
+
   final Map<String, bool> _selectedNodes = {};
   final nodeHeight = 30.0;
   ScrollController scrollController = ScrollController();
@@ -18,9 +26,21 @@ class TreeWidgetController with ChangeNotifier {
   late String _path;
   late Function outputSetter;
   Function? conditionalLunch;
+  final sortType = ValueNotifier(SortType.byChange);
 
   bool _isInitialized = false;
+
   bool get isInitialized => _isInitialized;
+
+  toggleSortType() {
+    if (sortType.value.index + 1 == SortType.values.length) {
+      sortType.value = SortType.values.first;
+    } else {
+      sortType.value = SortType.values[sortType.value.index + 1];
+    }
+    updateTree();
+    notifyListeners();
+  }
 
   TreeWidgetController({
     required String path,
@@ -42,10 +62,11 @@ class TreeWidgetController with ChangeNotifier {
 
   bool isSelected(String id) => _selectedNodes[id] ?? false;
 
-  void toggleSelection(String id, [bool? shouldSelect]) {
+  void toggleSelection(String id, [bool? shouldSelect]) async {
     final editor = Get.find<PhotoPreviewState>();
     if (editor.checkImageFile(id)) {
-      editor.openInEditor(id);
+      await editor.openInEditor(id);
+      updateTree();
     } else {
       _selectedNodes.clear();
       _select(id);
@@ -89,6 +110,7 @@ class TreeWidgetController with ChangeNotifier {
       var n = treeController.find(_selectedNodes.keys.last);
       if (n != null) treeController.expandUntil(n);
     }
+    notifyListeners();
   }
 
   void updateTheme(TreeViewTheme theme) {
@@ -109,25 +131,36 @@ class TreeWidgetController with ChangeNotifier {
     expansionButtonType.dispose();
     super.dispose();
   }
-}
 
-void buildFSTree({required TreeNode parent, required Directory dir}) {
-  for (FileSystemEntity f in dir.listSync()) {
-    TreeNode d = TreeNode(
-      id: f.path,
-      label: subFileNameFromPath(f.path),
-      data: f is Directory ? true : false,
-    );
-    if (f is Directory) {
-      buildFSTree(
-        parent: d,
-        dir: f,
-      );
+  void buildFSTree({required TreeNode parent, required Directory dir}) {
+    final directory = dir.listSync();
+    if (sortType.value == SortType.byName) {
+      directory.sort((a, b) => a.path.compareTo(b.path));
     }
-    parent.addChild(d);
-  }
-}
+    if (sortType.value == SortType.byChange) {}
+    List<TreeNode> filesList = [];
+    for (FileSystemEntity f in directory) {
+      TreeNode d = TreeNode(
+        id: f.path,
+        label: subFileNameFromPath(f.path),
+        data: f is Directory ? true : false,
+      );
+      if (f is File) {
+        filesList.add(d);
+      }
+      if (f is Directory) {
+        buildFSTree(
+          parent: d,
+          dir: f,
+        );
+        parent.addChild(d);
+      }
+    }
 
-String subFileNameFromPath(String path) {
-  return path.substring(path.lastIndexOf("/") + 1);
+    parent.addChildren(filesList);
+  }
+
+  String subFileNameFromPath(String path) {
+    return path.substring(path.lastIndexOf("/") + 1);
+  }
 }
