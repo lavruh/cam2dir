@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/screens/photo_preview_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_fancy_tree_view/flutter_fancy_tree_view.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as path_util;
 
 const String kRootId = 'Root';
 
@@ -63,19 +65,30 @@ class TreeWidgetController with ChangeNotifier {
   bool isSelected(String id) => _selectedNodes[id] ?? false;
 
   void toggleSelection(String id, [bool? shouldSelect]) async {
-    final editor = Get.find<PhotoPreviewState>();
-    if (editor.checkImageFile(id)) {
-      await editor.openInEditor(id);
+    final preview = Get.find<PhotoPreviewState>();
+    _selectedNodes.clear();
+    if (preview.checkImageFile(id)) {
+      _select(treeController.find(id)!.parent!.id);
+      final dirPath = path_util.dirname(id);
+      preview.setFilesToPreview(
+          pathes: Directory(dirPath).listSync().map((e) => e.path).toList(),
+          currentPath: id);
+      await Get.to(() => const PhotoPreviewScreen());
       updateTree();
     } else {
-      _selectedNodes.clear();
       _select(id);
-      outputSetter(id);
       notifyListeners();
     }
   }
 
-  void _select(String id) => _selectedNodes[id] = true;
+  void _select(String id) {
+    _selectedNodes[id] = true;
+    if (id == 'root') {
+      outputSetter(_path);
+    } else {
+      outputSetter(id);
+    }
+  }
 
   void collapseAllExcept(TreeNode node) {
     treeController.collapseAll();
@@ -97,7 +110,7 @@ class TreeWidgetController with ChangeNotifier {
   }
 
   void updateTree() {
-    final rootNode = TreeNode(id: UniqueKey().toString(), label: "root");
+    final rootNode = TreeNode(id: 'root', label: "root");
     buildFSTree(
       parent: rootNode,
       dir: Directory(_path),
@@ -108,7 +121,7 @@ class TreeWidgetController with ChangeNotifier {
 
     if (_selectedNodes.isNotEmpty) {
       var n = treeController.find(_selectedNodes.keys.last);
-      if (n != null) treeController.expandUntil(n);
+      if (n != null) treeController.expandNode(n);
     }
     notifyListeners();
   }
@@ -161,6 +174,6 @@ class TreeWidgetController with ChangeNotifier {
   }
 
   String subFileNameFromPath(String path) {
-    return path.substring(path.lastIndexOf("/") + 1);
+    return path_util.basename(path);
   }
 }

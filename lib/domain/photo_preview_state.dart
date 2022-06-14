@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
-import 'package:notes_on_image/ui/screens/draw_on_image_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PhotoPreviewState extends GetxController {
   final lastPhotos = <String>["", "", "", "", ""].obs;
+  final filesToPreview = <String>[].obs;
+  int currentImageIndex = 0;
   SharedPreferences settings = Get.find();
   final editor = Get.put<DesignationOnImageState>(DesignationOnImageState());
 
@@ -35,10 +36,19 @@ class PhotoPreviewState extends GetxController {
     return false;
   }
 
-  openInEditor(String path) async {
-    final f = File(path);
-    editor.loadImage(f);
-    await Get.to(() => const NotesOnImageScreen());
+  setFilesToPreview({required List<String> pathes, String? currentPath}) async {
+    filesToPreview.clear();
+    for (String path in pathes) {
+      if (await File(path).exists()) {
+        filesToPreview.add(path);
+      }
+    }
+    currentImageIndex = filesToPreview.indexOf(currentPath);
+    if (currentImageIndex > 0) {
+      editor.loadImage(File(filesToPreview[currentImageIndex]));
+    } else {
+      editor.loadImage(File(filesToPreview.first));
+    }
   }
 
   @override
@@ -51,5 +61,39 @@ class PhotoPreviewState extends GetxController {
   void onClose() async {
     await saveState();
     super.onClose();
+  }
+
+  openNextImage({bool increaseIndex = true}) async {
+    if (filesToPreview.isEmpty) {
+      return;
+    }
+    bool canGoNext = false;
+    await editor.hasToSavePromt(
+      onConfirmCallback: () async {
+        await editor.saveImage();
+        canGoNext = true;
+      },
+      onNoCallback: () => canGoNext = true,
+    );
+
+    if (!canGoNext) {
+      return;
+    }
+
+    if (increaseIndex) {
+      if (currentImageIndex + 1 < filesToPreview.length) {
+        currentImageIndex++;
+      } else {
+        currentImageIndex = 0;
+      }
+    } else {
+      if (currentImageIndex - 1 >= 0) {
+        currentImageIndex--;
+      } else {
+        currentImageIndex = filesToPreview.length - 1;
+      }
+    }
+
+    editor.loadImage(File(filesToPreview[currentImageIndex]));
   }
 }

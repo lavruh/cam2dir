@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera_app/domain/photo_preview_state.dart';
+import 'package:camera_app/screens/photo_preview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +22,10 @@ class PhotoPreviewWidget extends StatelessWidget {
             }
             return PhotoThumbnail(
               item: url,
-              onTap: () => _.openInEditor(url),
+              onTap: () {
+                _.setFilesToPreview(pathes: _.lastPhotos);
+                Get.to(() => const PhotoPreviewScreen());
+              },
             );
           }).toList(),
         );
