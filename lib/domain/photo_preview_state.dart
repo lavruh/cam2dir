@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:camera_app/domain/camera_state.dart';
+import 'package:camera_app/screens/photo_preview_screen.dart';
 import 'package:get/get.dart';
 import 'package:notes_on_image/domain/states/designation_on_image_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -95,5 +97,16 @@ class PhotoPreviewState extends GetxController {
     }
 
     editor.loadImage(File(filesToPreview[currentImageIndex]));
+  }
+
+  void expandPhotoPreviewWidget(String url) async {
+    setFilesToPreview(
+      pathes: lastPhotos,
+      currentPath: url,
+    );
+    final camera = Get.find<CameraState>();
+    camera.disposeCamera();
+    await Get.to(() => const PhotoPreviewScreen());
+    camera.initCamera();
   }
 }

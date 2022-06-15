@@ -38,7 +38,14 @@ class CameraAppState extends State<CameraApp>
     WidgetsBinding.instance.addObserver(this);
     photoProcState.loadState();
     photoPreviewState.loadState();
-    controller.addListener(() {});
+    controller.addListener(() {
+      if (controller.page! == 0) {
+        camera.initCamera();
+      }
+      if (controller.page == 1) {
+        camera.disposeCamera();
+      }
+    });
     camera.initCamera();
   }
 

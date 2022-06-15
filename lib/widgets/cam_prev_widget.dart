@@ -9,21 +9,19 @@ class CamPrevWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CameraState>(builder: (_) {
-      if ((_.camCtrl != null) & (!_.camCtrl!.value.isInitialized)) {
+      if ((_.camCtrl != null) && (_.camCtrl!.value.isInitialized)) {
+        CameraController controller = _.camCtrl!;
+        controller.unlockCaptureOrientation();
+        return CameraPreview(controller);
+      } else {
         return Container(
-          width: 300,
-          height: 300,
-          color: Colors.indigo,
+          color: Colors.black,
           child: const Center(
             child: Text(
               "Camera not init",
             ),
           ),
         );
-      } else {
-        CameraController controller = _.camCtrl!;
-        controller.unlockCaptureOrientation();
-        return CameraPreview(controller);
       }
     });
   }
